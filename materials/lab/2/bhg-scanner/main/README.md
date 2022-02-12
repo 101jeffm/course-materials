@@ -1,3 +1,3 @@
 In here? try > 
 - go build
-- time ./main
+- time ./main > out.csv
