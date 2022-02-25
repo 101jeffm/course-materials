@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"encoding/json"
+//	"encoding/json"
 	"shodan/shodan"
 )
 
@@ -23,32 +23,40 @@ func main() {
 	if err != nil {
 		log.Panicln(err)
 	}
-	fmt.Printf(
-		"Query Credits: %d\nScan Credits:  %d\n\n",
-		info.QueryCredits,
-		info.ScanCredits)
 
-	hostSearch, err := s.HostSearch(os.Args[1])
-	if err != nil {
-		log.Panicln(err)
+	more := "Y" //starts with page #1 
+	page := 1 //page number to increment 
+
+	for more == "Y" {
+		fmt.Printf(
+			"Query Credits: %d\nScan Credits:  %d\n\n",
+			info.QueryCredits,
+			info.ScanCredits)
+
+		hostSearch, err := s.HostSearch(os.Args[1],page)
+		if err != nil {
+			log.Panicln(err)
+		}
+
+		/*fmt.Printf("Host Data Dump\n")
+		for _, host := range hostSearch.Matches {
+			fmt.Println("==== start ",host.IPString,"====")
+			h,_ := json.Marshal(host)
+			fmt.Println(string(h))
+			fmt.Println("==== end ",host.IPString,"====")
+			//fmt.Println("Press the Enter Key to continue.")
+			//fmt.Scanln()
+		}*/
+
+		fmt.Printf("IP, Port, City, Country, Org\n")
+
+		for _, host := range hostSearch.Matches {
+			fmt.Printf("%s, %d, %s, %s, %s\n", host.IPString, host.Port, host.Location.City, host.Location.CountryCode, host.Org)
+		}
+
+		fmt.Println("Press Y then the Enter Key to continue to the next page of results")
+		fmt.Scanln(&more)
+		page++
 	}
-
-	fmt.Printf("Host Data Dump\n")
-	for _, host := range hostSearch.Matches {
-		fmt.Println("==== start ",host.IPString,"====")
-		h,_ := json.Marshal(host)
-		fmt.Println(string(h))
-		fmt.Println("==== end ",host.IPString,"====")
-		//fmt.Println("Press the Enter Key to continue.")
-		//fmt.Scanln()
-	}
-
-
-	fmt.Printf("IP, Port\n")
-
-	for _, host := range hostSearch.Matches {
-		fmt.Printf("%s, %d\n", host.IPString, host.Port)
-	}
-
 
 }
